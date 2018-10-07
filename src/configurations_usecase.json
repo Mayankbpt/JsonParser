@@ -1,0 +1,1338 @@
+{
+    "configurations": [{
+        "use_case_id": "UC1",
+        "disabled": false,
+        "query": "SELECT 1 AS usecase_id, es.event_type, es.user_requester, concat_ws(',',collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type = 'ConsoleLogin' GROUP BY event_type, user_requester HAVING SUM(CASE WHEN LOWER(es.event_outcome) = 'failure' THEN 1 ELSE 0 END) >= 5 AND SUM(CASE WHEN LOWER(es.event_outcome) = 'success' THEN 1 ELSE 0 END) = 1",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 5
+        }],
+        "use_case_title": "Console -- Brute Force Attack"
+    }, {
+        "use_case_id": "UC2",
+        "disabled": false,
+        "query": "SELECT 2 AS usecase_id, 'TerminationProtectionDisabledAndClusterShutdown' AS event_type, concat(es.event_id, ',', es2.event_id) AS associated_events, es.event_timestamp AS alert_time_start, es2.event_timestamp AS alert_time_end, es.aws_cloudtrail_catchall_key, es.aws_cloudtrail_catchall_value FROM eventstream es INNER JOIN eventstream es2 ON (es.aws_cloudtrail_catchall_key = es2.aws_cloudtrail_catchall_key AND es.aws_cloudtrail_catchall_value = es2.aws_cloudtrail_catchall_value) WHERE es.event_type = 'SetTerminationProtectionFalse' AND es2.event_type = 'TerminateJobFlows' AND es2.aws_collection_timestamp > es.aws_collection_timestamp",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EMR -- Job Terminated"
+    }, {
+        "use_case_id": "UC3",
+        "disabled": false,
+        "query": "SELECT 3 AS usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE event_type = '4624' AND aws_cloudtrail_catchall_key = 'Violation' AND aws_cloudtrail_catchall_value = 'Default administrator login'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Windows -- Local Admin Account Use"
+    }, {
+        "use_case_id": "UC4",
+        "disabled": false,
+        "query": "SELECT 4 AS usecase_id, user_target, source_ip, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end, aws_cloudtrail_catchall_key, aws_cloudtrail_catchall_value FROM eventstream es WHERE aws_cloudtrail_catchall_key = 'Violation' AND aws_cloudtrail_catchall_value = 'Delete WAF Rule'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "WAF -- Firewall Disabled"
+    }, {
+        "use_case_id": "UC5",
+        "disabled": false,
+        "query": "SELECT 5 AS usecase_id, es.event_type, concat_ws(',',collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE LOWER(es.event_type) = 'terminateworkspaces' GROUP BY es.event_type HAVING SUM(CASE WHEN LOWER(es.event_type) = 'terminateworkspaces' THEN 1 ELSE 0 END) > 1",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Workspaces � Multiple Virtual Desktops Terminated"
+    }, {
+        "use_case_id": "UC6",
+        "disabled": false,
+        "query": "SELECT 6 AS usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'stoplogging'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "CloudTrail -- API Logging Disabled"
+    }, {
+        "use_case_id": "UC7",
+        "disabled": false,
+        "query": "SELECT 7 AS usecase_id, 'MultipleBounces' AS event_type, es.email_source_source, concat_ws(',', collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE event_type = 'Bounce' AND aws_cloudtrail_catchall_key = 'mail_source' AND aws_cloudtrail_catchall_value = 'Admin' GROUP BY event_type, email_source_source HAVING COUNT(*) > 9 UNION SELECT 7 AS usecase_id, 'HighBouncePercentage' AS event_type, es.email_source_source, concat_ws(',', collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE lower(event_type) in ('bounce', 'complaint', 'delivery') AND aws_cloudtrail_catchall_key = 'mail_source' AND aws_cloudtrail_catchall_value = 'Admin' GROUP BY email_source_source HAVING ((SUM(CASE WHEN lower(event_type) = 'bounce' THEN 1 ELSE 0 END))*100 / (SUM(CASE WHEN lower(event_type) in ('bounce', 'complaint', 'delivery') THEN 1 ELSE 0 END))) >= 0.5",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 300
+        }],
+        "use_case_title": "SES -- Excessive Bounces"
+    }, {
+        "use_case_id": "UC8",
+        "disabled": false,
+        "query": "SELECT 8 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) in ('createnetworkaclentry','replacenetworkaclentry') AND lower(aws_cloudtrail_catchall_key) ='requestparameters_ruleaction' AND lower(aws_cloudtrail_catchall_value) ='allow'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "VPC -- New Firewall Rules"
+    }, {
+        "use_case_id": "UC9",
+        "disabled": false,
+        "query": "SELECT 9 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'deleterestapi'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "API -- Deletion"
+    }, {
+        "use_case_id": "UC10",
+        "disabled": false,
+        "query": "SELECT 10 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'changeresourcerecordsets'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "DNS -- Record Updated"
+    }, {
+        "use_case_id": "UC11",
+        "disabled": false,
+        "query": "SELECT 11 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'putbucketencryption' AND aws_cloudtrail_catchall_key = 'requestParameters_ServerSideEncryptionConfiguration_Rule_ApplyServerSideEncryptionByDefault_KMSMasterKeyID' AND aws_cloudtrail_catchall_value <> ''",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "S3 -- Encryption Key Changed"
+    }, {
+        "use_case_id": "UC12",
+        "disabled": false,
+        "query": "SELECT 12 AS usecase_id, es.group_member, 'AdminUserChanges' AS event_type, concat_ws(',',collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE LOWER(es.event_type) IN ('deleteuserpolicy', 'detachuserpolicy', 'updateuser', 'removeuserfromgroup') AND es.aws_cloudtrail_catchall_key = 'requestParameters_userName' AND es.aws_cloudtrail_catchall_value = 'Admin' GROUP BY es.group_member HAVING SUM(CASE WHEN LOWER(es.event_type) IN ('deleteuserpolicy', 'detachuserpolicy', 'updateuser', 'removeuserfromgroup') THEN 1 ELSE 0 END) > 1 UNION SELECT 12 AS usecase_id, es.group_member, es.event_type, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE LOWER(es.event_type) IN ( 'deletegrouppolicy', 'detachgrouppolicy', 'updategroup') AND es.aws_cloudtrail_catchall_key = 'requestParameters_groupName' AND es.aws_cloudtrail_catchall_value = 'Admin'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "IAM -- Multiple Admin Accounts Deleted"
+    }, {
+        "use_case_id": "UC13",
+        "disabled": false,
+        "query": "SELECT 13 AS usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE LOWER(event_type) IN ('createroute','deleteroute','createroutetable','deleteroutetable','create route table','delete route table','create route','delete route')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "VPC -- Route Change"
+    }, {
+        "use_case_id": "UC14",
+        "disabled": false,
+        "query": "SELECT 14 AS usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE LOWER(event_type) = 'createvpnconnection' AND aws_cloudtrail_catchall_key='requestParameters_customerGatewayId' AND aws_cloudtrail_catchall_value <> '' AND request_agent='requestParameters_vpnGatewayId' AND request_context <> ''",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "VPC -- New VPN Connection"
+    }, {
+        "use_case_id": "UC18",
+        "disabled": false,
+        "query": "SELECT 18 AS usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'requestspotfleet' AND aws_cloudtrail_catchall_key='requestParameters_RequestSpotFleetRequest_SpotFleetRequestConfig_TargetCapacity' AND CasT(aws_cloudtrail_catchall_value AS INTEGER) >= 19",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- Spot Fleet Requested for High Number of Servers"
+    }, {
+        "use_case_id": "UC19",
+        "disabled": false,
+        "query": "SELECT 19 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'acceptvpcpeeringconnection'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "VPC -- Peering Connection Established"
+    }, {
+        "use_case_id": "UC20",
+        "disabled": false,
+        "query": "SELECT 20 AS usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE LOWER(event_type) = 'getpassworddata'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- GetPasswordData Executed on Windows"
+    }, {
+        "use_case_id": "UC21",
+        "disabled": false,
+        "query": "SELECT 21 AS usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) in ('createnetworkaclentry', 'authorizesecuritygroupegress') AND target_port = '80'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "VPC -- New SG Created Allowing HTTP Traffic"
+    }, {
+        "use_case_id": "UC23",
+        "disabled": false,
+        "query": "SELECT 23 AS usecase_id, es.*, event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type = 'DeleteSecurityGroup'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- SG Deleted FROM EC2"
+    }, {
+        "use_case_id": "UC24",
+        "disabled": false,
+        "query": "SELECT 24 AS usecase_id, es.*, event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type in ('attachinternetgateway', 'AttachInternetGateway')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "VPC -- Internet Gateway Attached"
+    }, {
+        "use_case_id": "UC25",
+        "disabled": false,
+        "query": "SELECT 25 AS usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE LOWER(event_type) = 'restoredbclustertopointintime' AND aws_cloudtrail_catchall_key = 'responseElements_cloneGroupId' and aws_cloudtrail_catchall_value <> ''",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "AuroraDB -- Database Cloned"
+    }, {
+        "use_case_id": "UC26",
+        "disabled": false,
+        "query": "SELECT 26 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'consolelogin' AND source_maliciousIP <> ''",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Console -- Suspicious Traffic Detected"
+    }, {
+        "use_case_id": "UC27",
+        "disabled": false,
+        "query": "SELECT 27 AS usecase_id, es.event_type, es.user_implementer, concat_ws(',', collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type = 'ConsoleLogin' GROUP BY es.event_type, es.user_implementer HAVING COUNT(DISTINCT(source_geoLocation)) > 1",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 300
+        }],
+        "use_case_title": "Console -- User Login FROM Two Countries"
+    }, {
+        "use_case_id": "UC28",
+        "disabled": false,
+        "query": "SELECT 28 AS usecase_id, es.event_type, es.source_ip, concat_ws(',', collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type = 'ConsoleLogin' GROUP BY es.source_ip, es.event_type HAVING COUNT(DISTINCT(user_implementer)) >= 5",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 300
+        }],
+        "use_case_title": "Console -- Multiple Accounts Failed Login to Same IP"
+    }, {
+        "use_case_id": "UC29",
+        "disabled": false,
+        "query": "SELECT 29 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'consolelogin' AND group_id = 'Admin' AND aws_cloudtrail_catchall_key = 'additionalEventData_MFAUsed' AND aws_cloudtrail_catchall_value = 'No'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Console -- Admin Login Without MFA "
+    }, {
+        "use_case_id": "UC30",
+        "disabled": false,
+        "query": "SELECT 30 AS usecase_id, es.customer_id, es.event_type, concat_ws(',',collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE lower(es.event_type) = 'revokesecuritygroupegress' GROUP BY es.customer_id, es.event_type",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- Outbound SG Revoked"
+    }, {
+        "use_case_id": "UC34",
+        "disabled": false,
+        "query": "SELECT 34 AS usecase_id, es.*, event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type in ('AttachUserPolicy') and es.aws_cloudtrail_catchall_key in ('requestParameters_policyArn') and es.aws_cloudtrail_catchall_value in ('arn:aws:iam::aws:policy/AdministratorAccess')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "IAM -- AdministratorAccess Policy Applied"
+    }, {
+        "use_case_id": "UC35",
+        "disabled": false,
+        "query": "SELECT 35 AS usecase_id, es.*, event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE lower(es.event_type) in ('deletelogstream', 'deleteloggroup')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "CloudWatch -- Deleted Logs"
+    }, {
+        "use_case_id": "UC36",
+        "disabled": false,
+        "query": "SELECT 36 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) IN ('deletexssmatchset', 'deleteipset', 'deletesizeconstraintset', 'deletesqlinjectionmatchset', 'deletebytematchset') OR (lower(event_type) IN ('updatexssmatchset', 'updateipset', 'updatesizeconstraintset', 'updatesqlinjectionmatchset', 'updatebytematchset') AND (aws_cloudtrail_catchall_key='requestParameters_updates_action' AND aws_cloudtrail_catchall_value = 'delete'))",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "WAF -- Condition Deleted or Updated"
+    }, {
+        "use_case_id": "UC37",
+        "disabled": false,
+        "query": "SELECT 37 AS usecase_id, es.*, event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type in ('DeleteRule')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "WAF -- Rule Deleted"
+    }, {
+        "use_case_id": "UC40",
+        "disabled": false,
+        "query": "SELECT 40 AS usecase_id, es.*, es.event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type in ('ConsoleLogin') and es.source_geoLocation in ('Cuba', 'Iran', 'North Korea', 'Sudan', 'Syria', 'Belarus', 'Burundi', 'Central African Republic', 'Ivory Coast', 'Congo', 'Iraq', 'Lebanon', 'Libya', 'Russia', 'Somalia', 'Ukraine', 'Venezuela', 'Yemen', 'Zimbabwe', 'China')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Console -- Login FROM High Risk Country"
+    }, {
+        "use_case_id": "UC42",
+        "disabled": false,
+        "query": "SELECT 42 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'authorizesecuritygroupegress' AND aws_cloudtrail_catchall_key = 'requestParameters__ipPermissions_items_ipRanges_items_cidrIp' AND aws_cloudtrail_catchall_value <> ''",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- New SG Allowing Egress to IOC"
+    }, {
+        "use_case_id": "UC48",
+        "disabled": false,
+        "query": "SELECT 48 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'authorizesecuritygroupingress' AND aws_cloudtrail_catchall_key = 'requestParameters__ipPermissions_items_ipRanges_items_cidrIp' AND aws_cloudtrail_catchall_value <> ''",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- New SG Allowing Ingress FROM IOC"
+    }, {
+        "use_case_id": "UC50",
+        "disabled": false,
+        "query": "SELECT 50 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE es.event_type in ('ReplaceNetworkAclAssociation')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "VPC -- Network Access Control List Updated"
+    }, {
+        "use_case_id": "UC51",
+        "disabled": false,
+        "query": "SELECT 51 AS usecase_id, es.*, event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type in ('PutBucketAcl') and lower(es.aws_cloudtrail_catchall_value) in ('write','full_control', 'write_acp', 'write full_control')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "S3 -- Bucket Write Access Granted"
+    }, {
+        "use_case_id": "UC54",
+        "disabled": false,
+        "query": "SELECT 54 AS usecase_id, es.customer_id, es.event_type, es.source_ip, concat_ws(',', collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type = 'RequestSpotFleet' GROUP BY es.customer_id, es.source_ip, es.event_type HAVING SUM(CASE WHEN (es.event_type) = 'RequestSpotFleet' THEN 1 ELSE 0 END) >= 2",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 300
+        }],
+        "use_case_title": "EC2 -- Multiple Spot Fleet Requests"
+    }, {
+        "use_case_id": "UC55",
+        "disabled": false,
+        "query": "SELECT 55 AS usecase_id, 'sudolinuxlogin' event_type, es.customer_id, es.source_ip, concat_ws(',', collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_process = 'sudo' GROUP BY es.customer_id, es.source_ip HAVING SUM(CASE WHEN LOWER(es.event_process) = 'sudo' THEN 1 ELSE 0 END) >= 3",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 300
+        }],
+        "use_case_title": "EC2 -- SUDO Execution"
+    }, {
+        "use_case_id": "UC58",
+        "disabled": false,
+        "query": "SELECT 58 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE es.event_description LIKE '%chmod%' AND ( es.event_description LIKE '% /' OR es.event_description LIKE '% /bin' OR (es.event_description LIKE '%PWD=/%' AND es.event_description LIKE '% bin') OR es.event_description LIKE '% /sbin' OR (es.event_description LIKE '%PWD=/%' AND es.event_description LIKE '% sbin') OR es.event_description LIKE '% /etc' OR (es.event_description LIKE '%PWD=/%' AND es.event_description LIKE '% etc') OR es.event_description LIKE '% /usr' OR (es.event_description LIKE '%PWD=/%' AND es.event_description LIKE '% usr') OR es.event_description LIKE '% /usr/bin' OR (es.event_description LIKE '%PWD=/%' AND es.event_description LIKE '% usr/bin') OR es.event_description LIKE '% /mnt' OR (es.event_description LIKE '%PWD=/%' AND es.event_description LIKE '% mnt') OR es.event_description LIKE '% /dev' OR (es.event_description LIKE '%PWD=/%' AND es.event_description LIKE '% dev') )",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Linux -- Critical Directory Permission Modified"
+    }, {
+        "use_case_id": "UC59",
+        "disabled": false,
+        "query": "SELECT 59 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'consolelogin' AND lower(user_source) = 'root' AND lower(event_outcome) = 'success'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Console -- Root Login"
+    }, {
+        "use_case_id": "UC60",
+        "disabled": false,
+        "query": "SELECT 60 AS usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = '1102'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- Windows Audit Log Cleared"
+    }, {
+        "use_case_id": "UC64",
+        "disabled": false,
+        "query": "SELECT 64 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'addusertogroup' AND aws_cloudtrail_catchall_key = 'requestParameters_groupName' AND aws_cloudtrail_catchall_value = 'Admin'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "IAM -- User Added to Admin Group"
+    }, {
+        "use_case_id": "UC66",
+        "disabled": false,
+        "query": "SELECT 66 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'deletetable' AND target_hostname = 'dynamodb.amazonaws.com'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "DynamoDB -- Table Deleted"
+    }, {
+        "use_case_id": "UC68",
+        "disabled": false,
+        "query": "SELECT 68 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 's3-bucket-public-read-prohibited' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "S3 -- Public Read Access"
+    }, {
+        "use_case_id": "UC69",
+        "disabled": false,
+        "query": "SELECT 69 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 's3-bucket-public-write-prohibited' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "S3 -- Public Write Access"
+    }, {
+        "use_case_id": "UC70",
+        "disabled": false,
+        "query": "SELECT 70 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'iam-user-group-membership-check' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "IAM -- New User Without Group assignment"
+    }, {
+        "use_case_id": "UC71",
+        "disabled": false,
+        "query": "SELECT 71 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'ec2-instance-detailed-monitoring-enabled' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- Detailed Monitoring Disabled"
+    }, {
+        "use_case_id": "UC72",
+        "disabled": false,
+        "query": "SELECT 72 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'iam-user-no-policies-check' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "IAM -- Users With Policies Attached"
+    }, {
+        "use_case_id": "UC73",
+        "disabled": false,
+        "query": "SELECT 73 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 's3-bucket-ssl-requests-only' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "S3 -- Non-SSL Bucket Access"
+    }, {
+        "use_case_id": "UC74",
+        "disabled": false,
+        "query": "SELECT 74 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 's3-bucket-logging-enabled' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "S3 -- Bucket Logging Disabled"
+    }, {
+        "use_case_id": "UC75",
+        "disabled": false,
+        "query": "SELECT 75 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 's3-bucket-versioning-enabled' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "S3 -- Bucket Versioning Disabled"
+    }, {
+        "use_case_id": "UC76",
+        "disabled": false,
+        "query": "SELECT 76 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'iam-password-policy' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "IAM -- Non-Compliant Password Policy"
+    }, {
+        "use_case_id": "UC77",
+        "disabled": false,
+        "query": "SELECT 77 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'rds-storage-encrypted' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "RDS -- Encryption Disabled"
+    }, {
+        "use_case_id": "UC78",
+        "disabled": false,
+        "query": "SELECT 78 AS usecase_id, es.*, event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE (es.event_type) like ('DeleteFunction%')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Lambda -- Function Deleted"
+    }, {
+        "use_case_id": "UC79",
+        "disabled": false,
+        "query": "SELECT 79 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'encrypted-volumes' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EBS -- Unencrypted Volume Allowed"
+    }, {
+        "use_case_id": "UC80",
+        "disabled": false,
+        "query": "SELECT 80 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'restricted-ssh' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Console -- Unrestricted SSH Ingress Allowed"
+    }, {
+        "use_case_id": "UC81",
+        "disabled": false,
+        "query": "SELECT 81 AS usecase_id, es.*, es.event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE lower(event_type) in ('deleteflowlogs')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- Flow Logs Deleted"
+    }, {
+        "use_case_id": "UC82",
+        "disabled": false,
+        "query": "SELECT 82 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) in ('root-account-mfa-enabled', 'rootaccountmfa') AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Console -- Root Account MFA Disabled"
+    }, {
+        "use_case_id": "UC90",
+        "disabled": false,
+        "query": "SELECT 90 AS usecase_id, es.*, event_id AS associated_events, (es.event_timestamp) AS alert_time_start, (es.event_timestamp) AS alert_time_end FROM eventstream es WHERE (es.event_type) like ('UpdateFunctionCode%')",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Lambda -- Function Code Update"
+    }, {
+        "use_case_id": "UC124",
+        "disabled": false,
+        "query": "SELECT 124 AS usecase_id, es.customer_id, es.event_type, es.source_ip, concat_ws(',', collect_list(event_id)) AS associated_events, MIN(es.event_timestamp) AS alert_time_start, MAX(es.event_timestamp) AS alert_time_end FROM eventstream es WHERE es.event_type = 'ConsoleLogin' GROUP BY es.customer_id, es.source_ip, es.event_type HAVING SUM(CASE WHEN LOWER(es.aws_cloudtrail_errorMessage) in ('no username found in supplied account','No username found in supplied account') THEN 1 ELSE 0 END) >= 5",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 300
+        }],
+        "use_case_title": "IAM -- Failed Logins to Non-Existent Username"
+    }, {
+        "use_case_id": "UC125",
+        "disabled": false,
+        "query": "SELECT 125 usecase_id, es.*, event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE LOWER(event_type) = 'deletebucketpolicy'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "S3 -- Bucket Policy Deleted"
+    }, {
+        "use_case_id": "UC126",
+        "disabled": false,
+        "query": "SELECT 126 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'redshift-cluster-configuration-check' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "Redshift -- Non Compliant Cluster Security Configuration"
+    }, {
+        "use_case_id": "UC127",
+        "disabled": false,
+        "query": "SELECT 127 AS usecase_id, es.*, es.event_id AS associated_events, es.event_timestamp AS alert_time_start, es.event_timestamp AS alert_time_end FROM eventstream es WHERE lower(event_type) = 'approved-amis-by-id' AND lower(event_outcome) = 'non_compliant'",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }],
+        "use_case_title": "EC2 -- Non Approved AMI Deployed"
+    }, {
+        "use_case_id": "UC128",
+        "disabled": false,
+        "query": "ML algorithm will execute the query logic from the lambda",
+        "variables": [{
+            "key": "usecase_priority",
+            "value": 1
+        }, {
+            "key": "use_case_trigger_threshold_min",
+            "value": 0
+        }, {
+            "key": "use_case_trigger_threshold_max",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Interval_Seconds",
+            "value": 5
+        }, {
+            "key": "Window_Slide_Duration_Seconds",
+            "value": 0
+        }, {
+            "key": "no_dp_initial_average",
+            "value": 10
+        }, {
+            "key": "base_amount_of_PEWMA",
+            "value": 0.95
+        }, {
+            "key": "outlier_parameter",
+            "value": 0.1
+        }, {
+            "key": "anomaly_threshold",
+            "value": 0.03
+        }],
+        "use_case_title": "DNS -- Anomaly detected in DNS logs"
+    }]
+}
